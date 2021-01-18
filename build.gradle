@@ -1,0 +1,47 @@
+plugins {
+    id("java")
+}
+
+group("om.tabuyos.site")
+version("0.1.0")
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task createSrcDirs {
+    sourceSets*.java.srcDirs*.each {
+        it.mkdirs()
+    }
+    sourceSets*.resources.srcDirs*.each {
+        it.mkdirs()
+    }
+}
+
+task copyJar(type: Copy) {
+    delete("$buildDir/libs/lib")
+    from(configurations.runtimeClasspath)
+    into("$buildDir/libs/lib")
+}
+
+jar {
+    dependsOn("copyJar")
+    enabled(true)
+    manifest{
+        attributes(
+                "Main-Class": "com.tabuyos.awesome.statistics.svn.start.Statistic",
+                "Class-Path": configurations.runtimeClasspath.files.collect { "lib/$it.name" }.join(' ')
+        )
+    }
+}
